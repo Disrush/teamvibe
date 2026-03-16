@@ -1,0 +1,51 @@
+{
+  "id": "2026-03-16T1445_jiangyanping_4f83bb",
+  "version": "1.0",
+  "timestamp": "2026-03-16T14:45:00+08:00",
+  "author": {
+    "name": "蒋延平",
+    "role": ""
+  },
+  "is_major_change": false,
+  "entries": [
+    {
+      "decision_key": "remove-z-block",
+      "status": "active",
+      "requirement": {
+        "what": "恢复 Z 形方块，同时移除 L 形方块",
+        "why": "用户希望调整方块种类组合，恢复 Z 形并去掉 L 形"
+      },
+      "solution": {
+        "approach": "在 COLORS 和 SHAPES 中加回 Z 条目、删除 L 条目，随机袋自动适配",
+        "not_included": "未修改其他方块类型或游戏逻辑"
+      },
+      "decision": {
+        "type": "human",
+        "motivation": "用户与 amybriggs5010 线下沟通确认后，明确要求恢复 Z 方块并移除 L 方块",
+        "decided_by": "蒋延平"
+      },
+      "supersedes": {
+        "record_id": "2026-03-16T1440_amybriggs5010_28600c",
+        "reason": "经线下沟通确认，恢复 Z 方块并改为移除 L 方块"
+      }
+    },
+    {
+      "decision_key": "drop-speed-boost",
+      "status": "active",
+      "requirement": {
+        "what": "将方块默认下落速度提升一倍",
+        "why": "用户希望加快游戏节奏"
+      },
+      "solution": {
+        "approach": "初始下落间隔从 1000ms 改为 500ms，每级递减从 80ms 改为 40ms，最低 50ms 不变",
+        "not_included": "未修改软降、硬降等手动操作速度"
+      },
+      "decision": {
+        "type": "human",
+        "motivation": "用户明确要求默认速度提升一倍",
+        "decided_by": "蒋延平"
+      }
+    }
+  ],
+  "noise_excluded": "无"
+}
