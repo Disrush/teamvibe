@@ -1,0 +1,30 @@
+{
+  "id": "2026-03-16T1440_amybriggs5010_28600c",
+  "version": "1.0",
+  "timestamp": "2026-03-16T14:40:00+08:00",
+  "author": {
+    "name": "amybriggs5010",
+    "role": ""
+  },
+  "is_major_change": false,
+  "entries": [
+    {
+      "decision_key": "remove-z-block",
+      "status": "active",
+      "requirement": {
+        "what": "从俄罗斯方块游戏中移除 Z 形方块类型",
+        "why": "用户要求减少一种方块类型，选择移除 Z 形方块"
+      },
+      "solution": {
+        "approach": "从 COLORS 和 SHAPES 配置中删除 Z 条目，随机袋生成函数基于 SHAPES 的 keys 自动适配，无需额外修改",
+        "not_included": "未修改其他方块类型、游戏逻辑或 UI"
+      },
+      "decision": {
+        "type": "human",
+        "motivation": "用户明确指定移除 Z 形方块",
+        "decided_by": "amybriggs5010"
+      }
+    }
+  ],
+  "noise_excluded": "无"
+}
