@@ -147,6 +147,23 @@ def save_config(project_root, config):
         f.write("\n")
 
 
+def load_local_config(project_root):
+    local_path = os.path.join(project_root, ".teamwork", "local.json")
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def save_local_config(project_root, local_config):
+    local_path = os.path.join(project_root, ".teamwork", "local.json")
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+    with open(local_path, "w", encoding="utf-8") as f:
+        json.dump(local_config, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+
 def register_user(project_root, name, role, email=""):
     config = load_config(project_root)
     if "team_members" not in config:
@@ -163,8 +180,9 @@ def resolve_current_user(hook, project_root):
     email_map = {m.get("email", "").lower(): m for m in members if m.get("email")}
     name_map = {m["name"]: m for m in members if m.get("name")}
 
-    # 0. Try current_user from config
-    current_user = config.get("current_user", "")
+    # 0. Try current_user from local.json
+    local_config = load_local_config(project_root)
+    current_user = local_config.get("current_user", "")
     if current_user and current_user in name_map:
         m = name_map[current_user]
         return {"name": m["name"], "role": m.get("role", ""), "email": m.get("email", ""), "source": "config"}, config

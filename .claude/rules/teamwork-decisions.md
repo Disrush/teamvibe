@@ -12,7 +12,7 @@
    - **Record 级 supersedes**（历史兼容）：`record.supersedes` 为字符串时，被引用的旧记录**整体**视为已替代
    - 只有未被替代且 `status != "deprecated"` 的 entry 才算 active
 3. 将用户请求与 active 决策做业务语义比对
-4. 确定当前用户身份：优先读取 `.teamwork/config.json` 的 `current_user` 字段（按 name 匹配 `team_members`），若为空则回退到 git config 推断
+4. 确定当前用户身份：优先读取 `.teamwork/local.json` 的 `current_user` 字段（按 name 匹配 `team_members`），若为空则回退到 git config 推断。`local.json` 是本地文件（已 gitignore），不会被提交
 
 ### `human` 类型冲突 → 必须线下沟通
 
@@ -118,7 +118,8 @@ supersedes **必须写在 entry 级别**，格式如下：
 
 - 决策记录：`.teamwork/decisions/*.json`
 - 决策草稿：`.teamwork/drafts/current.json`（已加入 .gitignore，不提交）
-- 团队配置：`.teamwork/config.json`
+- 团队配置：`.teamwork/config.json`（提交，团队共享）
+- 本地配置：`.teamwork/local.json`（已加入 .gitignore，不提交，存放 `current_user` 等个人设置）
 
 ## 五、新成员注册
 

@@ -9,7 +9,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from compat import HookIO, load_config, resolve_current_user
+from compat import HookIO, load_config, load_local_config, resolve_current_user
 
 
 def load_decisions(project_root):
@@ -64,9 +64,10 @@ def get_active_decisions(records):
     return active
 
 
-def format_current_user_notice(current_user, config):
-    """当 config.json 的 current_user 为空时，提示设置身份。"""
-    current_user_field = config.get("current_user", "")
+def format_current_user_notice(current_user, config, project_root):
+    """当 local.json 的 current_user 为空时，提示设置身份。"""
+    local_config = load_local_config(project_root)
+    current_user_field = local_config.get("current_user", "")
     if current_user_field:
         return ""
     members = config.get("team_members", [])
@@ -80,7 +81,7 @@ def format_current_user_notice(current_user, config):
 
     return (
         "## 身份设置（需交互）\n\n"
-        "**当前 `.teamwork/config.json` 中 `current_user` 未设置。**\n"
+        "**当前 `.teamwork/local.json` 中 `current_user` 未设置。**\n"
         f"{member_options}\n"
         "请立即使用 AskUserQuestion 工具向用户提问，收集身份信息：\n\n"
         "**问题设计（分两步）：**\n\n"
@@ -94,9 +95,9 @@ def format_current_user_notice(current_user, config):
         "   - 如果有已注册成员，将他们的邮箱作为选项（用户可选 Other 输入新邮箱）\n"
         "   - 如果没有已注册成员的邮箱，提供常见邮箱后缀选项如「@gmail.com」「@outlook.com」（用户选 Other 输入完整邮箱）\n\n"
         "**第二步：收到回答后**\n"
-        "- 如果选择了已有成员 → 直接设置 `current_user` 为该 name\n"
-        "- 如果是新名称 → 追加到 `team_members`（含 name、role、email），再设置 `current_user`\n"
-        "- 修改完成后用 [skip decision] 标记提交\n"
+        "- 如果选择了已有成员 → 将 `current_user` 写入 `.teamwork/local.json`\n"
+        "- 如果是新名称 → 追加到 `config.json` 的 `team_members`（含 name、role、email），再将 `current_user` 写入 `local.json`\n"
+        "- `local.json` 已加入 .gitignore，不会被提交\n"
     )
 
 
@@ -162,7 +163,7 @@ def main():
     current_user, config = resolve_current_user(hook, project_root)
     records = load_decisions(project_root)
     active = get_active_decisions(records[:10])
-    notice = format_current_user_notice(current_user, config) or format_registration_notice(current_user)
+    notice = format_current_user_notice(current_user, config, project_root) or format_registration_notice(current_user)
     context = notice + format_context(active, config, current_user)
 
     env = {"TEAMWORK_DIR": ".teamwork", "TEAMWORK_USER": current_user["name"]}
