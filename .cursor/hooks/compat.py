@@ -163,6 +163,12 @@ def resolve_current_user(hook, project_root):
     email_map = {m.get("email", "").lower(): m for m in members if m.get("email")}
     name_map = {m["name"]: m for m in members if m.get("name")}
 
+    # 0. Try current_user from config
+    current_user = config.get("current_user", "")
+    if current_user and current_user in name_map:
+        m = name_map[current_user]
+        return {"name": m["name"], "role": m.get("role", ""), "email": m.get("email", ""), "source": "config"}, config
+
     # 1. Try Cursor/Claude account email
     user_email = hook.get_user_email()
     if user_email and user_email.lower() in email_map:

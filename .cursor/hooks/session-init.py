@@ -64,6 +64,28 @@ def get_active_decisions(records):
     return active
 
 
+def format_current_user_notice(current_user, config):
+    """当 config.json 的 current_user 为空时，提示设置身份。"""
+    current_user_field = config.get("current_user", "")
+    if current_user_field:
+        return ""
+    members = config.get("team_members", [])
+    if not members:
+        return (
+            "## 身份设置\n\n"
+            "**当前 `.teamwork/config.json` 中 `current_user` 未设置，且无已注册成员。**\n"
+            "请先注册团队成员，然后将 `current_user` 设置为你的显示名。\n"
+        )
+    member_names = [m["name"] for m in members if m.get("name")]
+    return (
+        "## 身份设置\n\n"
+        "**当前 `.teamwork/config.json` 中 `current_user` 未设置。**\n"
+        f"已注册成员：{', '.join(member_names)}\n"
+        "请告诉我你是哪位成员，或提供你的显示名和角色进行注册，"
+        "我会将 `current_user` 设置为对应的成员名。\n"
+    )
+
+
 def format_registration_notice(current_user):
     if current_user.get("source") == "unregistered":
         return (
@@ -126,7 +148,7 @@ def main():
     current_user, config = resolve_current_user(hook, project_root)
     records = load_decisions(project_root)
     active = get_active_decisions(records[:10])
-    notice = format_registration_notice(current_user)
+    notice = format_current_user_notice(current_user, config) or format_registration_notice(current_user)
     context = notice + format_context(active, config, current_user)
 
     env = {"TEAMWORK_DIR": ".teamwork", "TEAMWORK_USER": current_user["name"]}
