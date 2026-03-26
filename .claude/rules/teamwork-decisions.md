@@ -12,7 +12,7 @@
    - **Record 级 supersedes**（历史兼容）：`record.supersedes` 为字符串时，被引用的旧记录**整体**视为已替代
    - 只有未被替代且 `status != "deprecated"` 的 entry 才算 active
 3. 将用户请求与 active 决策做业务语义比对
-4. 读取 `.teamwork/config.json` 中的 `team_members` 确定当前用户身份
+4. 确定当前用户身份：优先读取 `.teamwork/config.json` 的 `current_user` 字段（按 name 匹配 `team_members`），若为空则回退到 git config 推断
 
 ### `human` 类型冲突 → 必须线下沟通
 

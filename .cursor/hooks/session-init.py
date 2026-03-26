@@ -64,6 +64,42 @@ def get_active_decisions(records):
     return active
 
 
+def format_current_user_notice(current_user, config):
+    """当 config.json 的 current_user 为空时，提示设置身份。"""
+    current_user_field = config.get("current_user", "")
+    if current_user_field:
+        return ""
+    members = config.get("team_members", [])
+    member_names = [m["name"] for m in members if m.get("name")]
+
+    # 构建成员选项列表（供 AskUserQuestion 使用）
+    member_options = ""
+    if member_names:
+        opts = ", ".join(f'"{n}"' for n in member_names)
+        member_options = f"已注册成员可选：{opts}\n"
+
+    return (
+        "## 身份设置（需交互）\n\n"
+        "**当前 `.teamwork/config.json` 中 `current_user` 未设置。**\n"
+        f"{member_options}\n"
+        "请立即使用 AskUserQuestion 工具向用户提问，收集身份信息：\n\n"
+        "**问题设计（分两步）：**\n\n"
+        "**第一步：** 使用 AskUserQuestion 同时提问：\n"
+        "1. 问题「你是哪位团队成员？」header: \"身份\"\n"
+        f"   - 将已注册成员作为选项（用户也可选 Other 输入新名称）\n"
+        f"   - 如果没有已注册成员，提供「注册新成员」作为唯一选项\n"
+        "2. 问题「你的角色是什么？」header: \"角色\"\n"
+        "   - 选项：开发者、前端开发、后端开发、设计师（用户可选 Other）\n"
+        "3. 问题「你的邮箱是什么？」header: \"邮箱\"\n"
+        "   - 如果有已注册成员，将他们的邮箱作为选项（用户可选 Other 输入新邮箱）\n"
+        "   - 如果没有已注册成员的邮箱，提供常见邮箱后缀选项如「@gmail.com」「@outlook.com」（用户选 Other 输入完整邮箱）\n\n"
+        "**第二步：收到回答后**\n"
+        "- 如果选择了已有成员 → 直接设置 `current_user` 为该 name\n"
+        "- 如果是新名称 → 追加到 `team_members`（含 name、role、email），再设置 `current_user`\n"
+        "- 修改完成后用 [skip decision] 标记提交\n"
+    )
+
+
 def format_registration_notice(current_user):
     if current_user.get("source") == "unregistered":
         return (
@@ -126,7 +162,7 @@ def main():
     current_user, config = resolve_current_user(hook, project_root)
     records = load_decisions(project_root)
     active = get_active_decisions(records[:10])
-    notice = format_registration_notice(current_user)
+    notice = format_current_user_notice(current_user, config) or format_registration_notice(current_user)
     context = notice + format_context(active, config, current_user)
 
     env = {"TEAMWORK_DIR": ".teamwork", "TEAMWORK_USER": current_user["name"]}
